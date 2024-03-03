@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:promilo_assignment/Screens/main_screen.dart';
 import 'package:promilo_assignment/utils/colors.dart';
@@ -19,8 +23,58 @@ class _LoginScreenState extends State<LoginScreen> {
       TextEditingController(text: 'Test@123');
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool rememberMe = false;
+
+  String generateSha256(String input) {
+    var bytes = utf8.encode(input);
+    var digest = sha256.convert(bytes);
+    return digest.toString();
+  }
+
+//Login
+  Future<void> _loginUser() async {
+    String epassword = "Test@123";
+    String hashedPassword = generateSha256(epassword);
+    print("SHA-256 Hashed Password: $hashedPassword");
+    const apiUrl = "https://apiv2stg.promilo.com/user/oauth/token";
+    Map<String, dynamic> body = {
+      "Email": emailController.text,
+      "password": hashedPassword,
+      "grant_type": 'password'
+    };
+
+    final response = await http.post(Uri.parse(apiUrl), body: body, headers: {
+      "Authorization": "Basic UHJvbWlsbzpxNCE1NkBaeSN4MiRHQg",
+    });
+    print(response.body);
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      // ignore: use_build_context_synchronously
+      showDialog(
+          context: context,
+          builder: (context) {
+            return LoadingDialog(message: "Please wait......");
+          });
+
+      Future.delayed(Duration(seconds: 3), () {
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => MainScreen()));
+      });
+    } else {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Invalid Login Id or Password."),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    String password = "Test@123";
+    String hashedPassword = generateSha256(password);
+    print("SHA-256 Hashed Password: $hashedPassword");
     return Scaffold(
       backgroundColor: wColor,
       body: SingleChildScrollView(
@@ -136,6 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             backgroundColor: lightthemeColor),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
+                            // _loginUser();
                             showDialog(
                                 context: context,
                                 builder: (context) {

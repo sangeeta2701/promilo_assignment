@@ -4,6 +4,7 @@ import 'package:promilo_assignment/utils/colors.dart';
 import 'package:promilo_assignment/utils/constants.dart';
 import 'package:promilo_assignment/widget/sizedbox.dart';
 import 'package:readmore/readmore.dart';
+import 'package:share_plus/share_plus.dart';
 
 final List<String> imgList = [
   "assets/images/img9.jpg",
@@ -20,6 +21,11 @@ class DescriptionScreen extends StatefulWidget {
 
 class _DescriptionScreenState extends State<DescriptionScreen> {
   int currentIndex = 0;
+
+  void _shareContent() {
+    Share.share(imgList.toString());
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -151,7 +157,9 @@ class _DescriptionScreenState extends State<DescriptionScreen> {
                                   color: bColor,
                                 )),
                             IconButton(
-                                onPressed: () {},
+                                onPressed: () {
+                                  _shareContent();
+                                },
                                 icon: Icon(
                                   Icons.share_outlined,
                                   color: bColor,
